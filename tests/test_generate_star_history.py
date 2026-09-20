@@ -57,9 +57,20 @@ class StarHistoryTests(unittest.TestCase):
         self.assertIn("<svg", svg)
 
     def test_zero_star_fetch_skips_stargazer_request(self):
-        with mock.patch.object(MODULE, "github_json", return_value={"stargazers_count": 0}) as request:
-            self.assertEqual(MODULE.fetch_stargazers("owner/repo", None, 1, 0), (0, []))
-        request.assert_called_once_with("https://api.github.com/repos/owner/repo", None, 0)
+        response = {
+            "data": {
+                "repository": {
+                    "stargazerCount": 0,
+                    "stargazers": {
+                        "edges": [],
+                        "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    },
+                }
+            }
+        }
+        with mock.patch.object(MODULE, "github_graphql", return_value=response) as request:
+            self.assertEqual(MODULE.fetch_stargazers("owner/repo", "token", 1, 0), (0, []))
+        request.assert_called_once()
 
     def test_unusable_api_response_keeps_existing_chart(self):
         with tempfile.TemporaryDirectory() as directory:
