@@ -6,5 +6,9 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 
+# Python virtual environments
+.venv/
+venv/
+
 # Local generated outputs
 /output/
